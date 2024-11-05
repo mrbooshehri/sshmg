@@ -1,0 +1,24 @@
+#! /bin/bash
+
+CONF_HOME=$HOME/.config/tunnels
+TUNNELS_LIST=$CONF_HOME/tunnels.list
+
+! test -d $CONF_HOME && mkdir -p $CONF_HOME
+! test -f $TUNNELS_LIST && echo "|name|local_port|remote_user|remote_address|remote_port|jump_user|jump_address|jump_port" > $TUNNELS_LIST
+
+case $1 in
+    add) vim $TUNNELS_LIST ;;
+    "")
+        INFO=`cat $TUNNELS_LIST | tail +2 | fzf --reverse`
+        [[ -z $INFO ]] && exit
+        IFS='|' read -ra ADDR <<< "$INFO"
+        if [[ -z ${ADDR[5]} || -z ${ADDR[6]} || -z ${ADDR[7]} ]]
+            echo "Forwarding port [ ${ADDR[4]} ] on [ ${ADDR[3]} ] to [ localhost:${ADDR[1]} ]"
+            ssh -L localhost:${ADDR[1]}:${ADDR[3]}:${ADDR[4]} ${ADDR[2]}@${ADDR[3]}
+        else
+            echo "Forwarding port [ ${ADDR[4]} ] on [ ${ADDR[3]} ] via [ ${ADDR[6]} ] jump server to [ localhost:${ADDR[1]} ]"
+            ssh -L localhost:${ADDR[1]}:${ADDR[3]}:${ADDR[4]} -J ${ADDR[5]}@${ADDR[6]} ${ADDR[2]}@${ADDR[3]}
+
+        fi
+        ;;
+esac
