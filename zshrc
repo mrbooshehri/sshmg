@@ -90,7 +90,6 @@ plugins=(
   iterm2
   macports
   man
-  osx
   python
   composer
   zsh-syntax-highlighting
