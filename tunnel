@@ -12,13 +12,12 @@ case $1 in
         INFO=`cat $TUNNELS_LIST | tail +2 | fzf --reverse`
         [[ -z $INFO ]] && exit
         IFS='|' read -ra ADDR <<< "$INFO"
-        if [[ -z ${ADDR[5]} || -z ${ADDR[6]} || -z ${ADDR[7]} ]]
+        if [[ -z ${ADDR[5]} || -z ${ADDR[6]} || -z ${ADDR[7]} ]]; then
             echo "Forwarding port [ ${ADDR[4]} ] on [ ${ADDR[3]} ] to [ localhost:${ADDR[1]} ]"
-            ssh -L localhost:${ADDR[1]}:${ADDR[3]}:${ADDR[4]} ${ADDR[2]}@${ADDR[3]}
+            ssh -o IdentitiesOnly=yes -L localhost:${ADDR[1]}:${ADDR[3]}:${ADDR[4]} ${ADDR[2]}@${ADDR[3]}
         else
             echo "Forwarding port [ ${ADDR[4]} ] on [ ${ADDR[3]} ] via [ ${ADDR[6]} ] jump server to [ localhost:${ADDR[1]} ]"
-            ssh -L localhost:${ADDR[1]}:${ADDR[3]}:${ADDR[4]} -J ${ADDR[5]}@${ADDR[6]} ${ADDR[2]}@${ADDR[3]}
-
+            ssh -o IdentitiesOnly=yes -L localhost:${ADDR[1]}:${ADDR[3]}:${ADDR[4]} -J ${ADDR[5]}@${ADDR[6]} ${ADDR[2]}@${ADDR[3]}
         fi
         ;;
 esac
